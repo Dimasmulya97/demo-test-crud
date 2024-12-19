@@ -151,19 +151,15 @@ public class ProductServiceTest {
     @Test
     @DisplayName("should throw RuntimeException when product ID is not found")
     public void testDeleteById_error_productNotFound() {
-        int nonExistentProductId = 999; // ID yang tidak ada
+        int nonExistentProductId = 999;
 
         when(productRepositroy.findById(nonExistentProductId)).thenReturn(Optional.empty());
 
-        // Call the service
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             productServices.deleteById(nonExistentProductId);
         });
-
-        // Verify the exception message
         assertEquals(Constants.Response.NOT_FOUND_MESSAGE, exception.getMessage());
 
-        // Verify repository interaction (should not call deleteById)
         verify(productRepositroy, never()).deleteById(nonExistentProductId);
     }
 
@@ -171,16 +167,14 @@ public class ProductServiceTest {
     @Test
     @DisplayName("should delete product by ID successfully")
     public void testDeleteById_success() {
-        int existingProductId = 1; // ID yang ada
+        int existingProductId = 1;
         Product product = new Product(existingProductId, productRequest.getName(), productRequest.getPrice());
 
         when(productRepositroy.findById(existingProductId)).thenReturn(Optional.of(product));
         doNothing().when(productRepositroy).deleteById(existingProductId);
 
-        // Call the service
         productServices.deleteById(existingProductId);
 
-        // Verify repository interaction
         verify(productRepositroy, times(1)).deleteById(existingProductId);
     }
 
