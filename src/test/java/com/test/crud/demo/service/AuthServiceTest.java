@@ -136,45 +136,6 @@ public class AuthServiceTest {
         assertEquals("Invalid Failed Format Role", exception.getMessage());
     }
 
-
-    @Test
-    @DisplayName("should return success response")
-    void testLoginSuccess() {
-        String username = "dimasmulya";
-        String password = "dimas12345";
-
-        // Mocking the behavior
-        User mockUser = new User();
-        mockUser.setUsername(username);
-        // Hash the password using BCrypt
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        mockUser.setPassword(hashedPassword); // Set the hashed password
-        when(userRepo.findByUsername(username)).thenReturn(Optional.empty());
-
-        // Properly mock BCrypt checkpw
-        doReturn(true).when(bCrypt).checkpw(password, mockUser.getPassword());
-
-        // Proper stubbing for generateJwtToken
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
-        doReturn("mock-jwt-token").when(jwtUtils).generateJwtToken(authToken);
-
-        when(authenticationManager.authenticate(authToken)).thenReturn(mock(Authentication.class));
-
-        LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername(username);
-        loginRequest.setPassword(password);
-
-        // Call the method
-        Response<Object> response = userServices.login(loginRequest);
-
-        // Assertions
-        assertNotNull(response);
-        assertEquals(Constants.Response.SUCCESS_CODE, response.getResponseCode());
-        assertEquals(Constants.Response.SUCCESS_MESSAGE, response.getResponseMessage());
-        assertNotNull(response.getData());
-        assertTrue(response.getData() instanceof LoginResponse);
-    }
-
     @Test
     @DisplayName("Test Login - Success")
     public void testLoginUserFound() {
@@ -182,37 +143,29 @@ public class AuthServiceTest {
         String password = "dimas12345";
 
         LoginRequest loginRequest = new LoginRequest();
-        loginRequest.setUsername(username); // Username harus sesuai dengan mock
+        loginRequest.setUsername(username);
         loginRequest.setPassword(password);
 
-        // Mock User dengan username yang sama
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         User user = new User();
         user.setName("Dimas");
-        user.setUsername(username); // Sama dengan username di LoginRequest
+        user.setUsername(username);
         user.setPassword(hashedPassword);
         user.setRole("Admin");
 
-        // Stub userRepo untuk mengembalikan Optional.of(user)
-//        when(userRepo.findByUsername(username)).thenReturn(Optional.of(user));
         System.out.println("Username dalam test: " + loginRequest.getUsername());
 
-        // Stub userRepo
         when(userRepo.findByUsername(username)).thenReturn(Optional.of(user));
         System.out.println("Is userRepo a mock? " + Mockito.mockingDetails(userRepo).isMock());
 
-        // Stub password check
         doReturn(true).when(bCrypt).checkpw(password, user.getPassword());
 
-        // Mock Spring Security Authentication
         Authentication auth = mock(Authentication.class);
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
         when(jwtUtils.generateJwtToken(auth)).thenReturn("mock-jwt-token");
 
-        // Panggil metode login
         Response<Object> response = userServices.login(loginRequest);
 
-        // Assertions
         assertNotNull(response);
         assertEquals(Constants.Response.SUCCESS_CODE, response.getResponseCode());
         assertEquals(Constants.Response.SUCCESS_MESSAGE, response.getResponseMessage());
