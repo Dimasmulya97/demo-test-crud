@@ -89,11 +89,12 @@ public class UserServices {
     public Response<Object> login(LoginRequest loginRequest) {
         try {
             BCrypt encrypt = new BCrypt();
-            User user = userRepo.findByUsername(loginRequest.getUsername());
-            if (Objects.isNull(user)) {
+            System.out.println("Username dalam services: " + loginRequest.getUsername());
+            Optional<User> user = userRepo.findByUsername(loginRequest.getUsername());
+            if (!user.isPresent()) {
                 throw new UnauthorizedException(Constants.Message.INVALID_USERNAME_MESSAGE);
             }
-            if (!encrypt.checkpw(loginRequest.getPassword(), user.getPassword())) {
+            if (!encrypt.checkpw(loginRequest.getPassword(), user.get().getPassword())) {
                 throw new UnauthorizedException(Constants.Message.INVALID_PASSWORD_MESSAGE);
             }
 
@@ -109,7 +110,7 @@ public class UserServices {
                     .collect(Collectors.toList());
 
             // Mempersiapkan respons login
-            LoginResponse response = mappingLoginResponse(user, jwt);
+            LoginResponse response = mappingLoginResponse(user.get(), jwt);
             return Response.builder()
                     .responseCode(Constants.Response.SUCCESS_CODE)
                     .responseMessage(Constants.Response.SUCCESS_MESSAGE)

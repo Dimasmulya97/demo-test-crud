@@ -1,6 +1,7 @@
 package com.test.crud.demo.controller;
 
 import com.test.crud.demo.dto.ProductRequest;
+import com.test.crud.demo.dto.Response;
 import com.test.crud.demo.model.Product;
 import com.test.crud.demo.service.ProductServices;
 import lombok.RequiredArgsConstructor;
@@ -19,17 +20,17 @@ public class ProductController {
     private  ProductServices productServices;
 
     @GetMapping("/findAll")
-    public List<Product> ambilSemua(){
+    public Response<Object> ambilSemua(){
         return productServices.findAll();
     }
 
     @PostMapping("/create")
-    public Product buatData(@RequestBody ProductRequest productRequest){
+    public Response<Object> buatData(@RequestBody ProductRequest productRequest){
         return productServices.create(productRequest);
     }
 
     @PutMapping("/update")
-    public Product update(@RequestParam("id") int id,@RequestBody ProductRequest productRequest){
+    public Response<Object> update(@RequestParam("id") int id,@RequestBody ProductRequest productRequest){
         return  productServices.update(id,productRequest);
     }
 
