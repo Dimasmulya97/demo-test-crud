@@ -69,7 +69,7 @@ public class UserServices {
                 message = Validator.Message.INVALID_FAILED.replace("{value}", "Role");
                 throw validatorException(message, userRequest.getName());
             }
-           user.setName(userRequest.getName());
+            user.setName(userRequest.getName());
             user.setUsername(userRequest.getUsername());
             user.setPassword(password);
             user.setRole(userRequest.getRole());

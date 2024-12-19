@@ -1,4 +1,4 @@
-package com.test.crud.demo.user;
+package com.test.crud.demo.service;
 
 import com.test.crud.demo.constant.Constants;
 import com.test.crud.demo.dto.Response;
@@ -6,8 +6,7 @@ import com.test.crud.demo.dto.UserRequest;
 import com.test.crud.demo.model.User;
 import com.test.crud.demo.repo.UserRepo;
 import com.test.crud.demo.security.JwtUtils;
-import com.test.crud.demo.service.UserServices;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,7 +38,7 @@ public class AuthServiceTest {
 
 
     @Test
-    @Disabled
+    @DisplayName("should return success response")
     public void testRegister_Success() {
         UserRequest userRequest = new UserRequest();
         userRequest.setUsername("testuser");
@@ -50,42 +49,60 @@ public class AuthServiceTest {
         User user = new User();
         user.setName("Test User");
         user.setUsername("testuser");
-        user.setPassword("hashedpassword");
+        user.setPassword(bCrypt.hashpw(userRequest.getPassword(),BCrypt.gensalt()));
         user.setRole("USER");
-        String password = userRequest.getPassword() != null ? bCrypt.hashpw(userRequest.getPassword(),BCrypt.gensalt()) : "";
-        System.out.println(password);
-        // Mock behavior of BCrypt
-        when(bCrypt.hashpw(userRequest.getPassword(), BCrypt.gensalt())).thenReturn("hashedpassword");
+
         when(userRepo.save(any(User.class))).thenReturn(user);
 
-        // Invoke the register method
         Response<Object> response = userServices.register(userRequest);
-
-        // Assertions
         assertNotNull(response);
         assertEquals(Constants.Response.SUCCESS_CODE, response.getResponseCode());
         assertEquals(Constants.Response.SUCCESS_MESSAGE, response.getResponseMessage());
         assertNotNull(response.getData());
 
-        // Verify interactions
-        verify(bCrypt, times(1)).hashpw(password, anyString());
         verify(userRepo, times(1)).save(any(User.class));
     }
 
     @Test
-    public void testRegister_Failure_NullUsername() {
+    @DisplayName("should return failed response because username is null")
+    public void testRegister_Username_Is_Null() {
         UserRequest userRequest = new UserRequest();
-        userRequest.setUsername(null);
         userRequest.setPassword("testpassword");
         userRequest.setName("Test User");
         userRequest.setRole("USER");
 
         Exception exception = assertThrows(RuntimeException.class, () -> userServices.register(userRequest));
-        assertEquals("Nama tidak boleh kosong", exception.getMessage());
+        assertEquals("Invalid Nama Null", exception.getMessage());
     }
 
     @Test
-    public void testRegister_Failure_InvalidName() {
+    @DisplayName("should return failed response because role is null")
+    public void testRegister_Role_Is_Null() {
+        UserRequest userRequest = new UserRequest();
+        userRequest.setPassword("testpassword");
+        userRequest.setName("Test User");
+        userRequest.setUsername("user");
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userServices.register(userRequest));
+        assertEquals("Invalid Role Null", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("should return failed response because password is null")
+    public void testRegister_Password_Is_Null() {
+        UserRequest userRequest = new UserRequest();
+        userRequest.setName("Test User");
+        userRequest.setUsername("user");
+        userRequest.setRole("USER");
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userServices.register(userRequest));
+        assertEquals("Invalid Password Null", exception.getMessage());
+    }
+
+
+    @Test
+    @DisplayName("should return failed response becuase invalid format name")
+    public void testRegister_Failure_Invalid_Format_Name() {
         UserRequest userRequest = new UserRequest();
         userRequest.setUsername("testuser");
         userRequest.setPassword("testpassword");
@@ -93,22 +110,20 @@ public class AuthServiceTest {
         userRequest.setRole("USER");
 
         Exception exception = assertThrows(RuntimeException.class, () -> userServices.register(userRequest));
-        assertEquals("Nama anda tidak valid", exception.getMessage());
+        assertEquals("Invalid Failed Format Nama anda", exception.getMessage());
     }
 
     @Test
-    public void testRegister_Failure_RepoException() {
+    @DisplayName("should return failed response becuase invalid format role")
+    public void testRegister_Failure_Invalid_Format_Role() {
         UserRequest userRequest = new UserRequest();
         userRequest.setUsername("testuser");
         userRequest.setPassword("testpassword");
-        userRequest.setName("Test User");
-        userRequest.setRole("USER");
-
-        when(bCrypt.hashpw(eq("testpassword"), anyString())).thenReturn("hashedpassword");
-        when(userRepo.save(any(User.class))).thenThrow(new RuntimeException("Database error"));
+        userRequest.setName("InvalidName");
+        userRequest.setRole("US#R");
 
         Exception exception = assertThrows(RuntimeException.class, () -> userServices.register(userRequest));
-        assertEquals("Database error", exception.getMessage());
+        assertEquals("Invalid Failed Format Role", exception.getMessage());
     }
 
 }
