@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class ProductServices {
-    private ProductRepositroy productRepositroy;
+    private final ProductRepositroy productRepositroy;
 
     @Transactional
     @SneakyThrows

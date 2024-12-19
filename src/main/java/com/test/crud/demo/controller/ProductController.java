@@ -24,6 +24,11 @@ public class ProductController {
         return productServices.findAll();
     }
 
+    @GetMapping("/findById")
+    public Response<Object> ambilBerdasarkanId(@RequestParam("id") int id){
+        return productServices.findById(id);
+    }
+
     @PostMapping("/create")
     public Response<Object> buatData(@RequestBody ProductRequest productRequest){
         return productServices.create(productRequest);
