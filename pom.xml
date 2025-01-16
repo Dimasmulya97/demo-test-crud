@@ -144,7 +144,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>3.4.0</version> <!-- Tambahkan versi di sini -->
+				<version>3.4.0</version>
 				<configuration>
 					<mainClass>com.test.crud.demo.DemoTestCrudApplication</mainClass>
 					<excludes>
