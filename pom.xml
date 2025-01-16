@@ -146,7 +146,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>3.4.0</version> <!-- Tambahkan versi di sini -->
 				<configuration>
-					<mainClass>com.example.DemoTestCrudApplication</mainClass>
+					<mainClass>com.test.crud.demo.DemoTestCrudApplication</mainClass>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
